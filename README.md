@@ -1,3 +1,5 @@
+# PrivacyManifest対応用のfork branchであり、Alamofireに乗り換え次第削除すること
+
 <p align="center" >
   <img src="https://raw.github.com/AFNetworking/AFNetworking/assets/afnetworking-logo.png" alt="AFNetworking" title="AFNetworking">
 </p>
