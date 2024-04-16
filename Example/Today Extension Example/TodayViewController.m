@@ -40,6 +40,7 @@
 
     NSURLCache *URLCache = [[NSURLCache alloc] initWithMemoryCapacity:4 * 1024 * 1024 diskCapacity:20 * 1024 * 1024 diskPath:nil];
     [NSURLCache setSharedURLCache:URLCache];
+    self.post = [self loadSavedPost];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -50,6 +51,7 @@
     [Post globalTimelinePostsWithBlock:^(NSArray *posts, NSError *error) {
         if (!error) {
             self.post = posts.firstObject;
+            [self savePost:self.post];
 
             if (completionHandler) {
                 completionHandler(self.post != nil ? NCUpdateResultNewData : NCUpdateResultNoData);
@@ -77,6 +79,28 @@
     self.titleLabel.text = _post.user.username;
     self.bodyLabel.text = _post.text;
     [self.imageView setImageWithURL:_post.user.avatarImageURL placeholderImage:[UIImage imageNamed:@"profile-image-placeholder"]];
+}
+
+- (void)savePost:(Post *)post {
+
+    if (post == nil) {
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"AF.post"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        return;
+    }
+
+    NSData *postData = [NSKeyedArchiver archivedDataWithRootObject:post];
+    [[NSUserDefaults standardUserDefaults] setObject:postData forKey:@"AF.post"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (Post *)loadSavedPost {
+    NSData *postData = [[NSUserDefaults standardUserDefaults] objectForKey:@"AF.post"];
+    if (postData == nil || ![postData isKindOfClass:[NSData class]]) {
+        return nil;
+    }
+
+    return [NSKeyedUnarchiver unarchiveObjectWithData:postData];
 }
 
 @end
